@@ -1,0 +1,16 @@
+<?php
+
+function match_redirect_init() {
+  $patterns = "our-story/*";
+  $redirect = "our-story";
+  $currentAlias = drupal_get_path_alias();
+  if (drupal_match_path($currentAlias, $patterns)) {
+    if (!match_redirect_url_exists()) {
+      drupal_goto($redirect, array(), 301);
+    }
+  }
+}
+
+function match_redirect_url_exists() {
+  return (bool)menu_get_item();
+}
