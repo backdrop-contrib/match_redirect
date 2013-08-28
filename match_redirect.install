@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Install, update, and uninstall functions for the redirect module.
+ */
+
+/**
  * Implements hook_schema().
  */
 function match_redirect_schema() {

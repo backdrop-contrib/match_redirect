@@ -1,13 +1,23 @@
 <?php
 
+/**
+ * @file
+ * Administrative callbacks for the match redirect module.
+ */
+
+/**
+ * Returns the redirect listing form that allows reordering of weights.
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
 function match_redirect_list_form($form, &$form_state) {
   $destination = drupal_get_destination();
   $form['#tree'] = TRUE;
   // Get all redirects
-  $select = db_select('match_redirect', 'm');
-  $select->fields('m');
-  $select->orderBy('weight', 'ASC');
-  $results = $select->execute()->fetchAll();
+  $results = match_redirect_load_multiple(array());
+  // Build out form structure to be themed as a table
   foreach ($results as $row) {
     $form['redirects'][$row->rid]['pattern'] = array('#markup' => htmlentities($row->source_pattern));
     $form['redirects'][$row->rid]['target'] = array('#markup' => htmlentities($row->target));
@@ -16,8 +26,9 @@ function match_redirect_list_form($form, &$form_state) {
       '#type' => 'weight',
       '#title' => t('Weight'),
       '#title_display' => 'invisible',
-      '#default_value' => 0,
+      '#default_value' => $row->weight,
     );
+    // Edit and delete operations for redirects
     $operations = array();
     $operations['edit'] = array(
       'title' => t('Edit'),
@@ -42,9 +53,16 @@ function match_redirect_list_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Submit callback for redirect listing form (saves weights).
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function match_redirect_list_form_submit($form, &$form_state) {
   if (isset($form_state['values']['redirects'])) {
     foreach ($form_state['values']['redirects'] as $rid => $weight) {
+      // Save new weights
       $redirect = new stdClass();
       $redirect->rid = $rid;
       $redirect->weight = $weight['weight'];
@@ -53,11 +71,18 @@ function match_redirect_list_form_submit($form, &$form_state) {
   }
 }
 
+/**
+ * Theme callback for redirect listing form (renders form as re-orderable table).
+ *
+ * @param array $variables
+ * @return string
+ */
 function theme_match_redirect_list_form($variables) {
   $form = $variables['form'];
 
   $rows = array();
   foreach (element_children($form['redirects']) as $id) {
+    // Break the form into variables theme_table expects and add needed classes
     $form['redirects'][$id]['weight']['#attributes']['class'] = array('text-format-order-weight');
     $rows[] = array(
       'data' => array(
@@ -70,6 +95,7 @@ function theme_match_redirect_list_form($variables) {
       'class' => array('draggable'),
     );
   }
+  // Handle no redirects
   if (empty($rows)) {
     $rows[] = array(
       'data' => array(
@@ -77,20 +103,30 @@ function theme_match_redirect_list_form($variables) {
       ),
     );
   }
+  // Header row
   $header = array(t('Pattern'), t('Target'), t('Code'), t('Weight'), t('Operations'));
   $output = theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'text-format-order')));
   $output .= drupal_render_children($form);
-
+  // Add re-ordering js
   drupal_add_tabledrag('text-format-order', 'order', 'sibling', 'text-format-order-weight');
 
   return $output;
 }
 
+/**
+ * Returns the redirect edit/add form.
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param object $existing Redirect object that is loaded for editing.
+ * @return array
+ */
 function match_redirect_add_form($form, &$form_state, $existing = NULL) {
+  // No existing redirect provided create empty class
   if (!isset($existing)) {
     $existing = new stdClass();
   }
-  
+
   $form['rid'] = array(
     '#type' => 'value',
     '#value' => $existing->rid,
@@ -99,13 +135,21 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#type' => 'textarea',
     '#title' => t('Pattern'),
     '#default_value' => $existing->source_pattern,
-    '#required' => true,
+    '#required' => TRUE,
+    '#description' => t('Specify redirect sources by using their paths. Enter ' .
+                        'one path per line. The \'*\' character is a wildcard. ' .
+                        'Example paths are blog for the blog page and blog/* ' .
+                        'for every personal blog. <front> is the front page.')
   );
   $form['target'] = array(
     '#type' => 'textfield',
     '#title' => t('Target'),
     '#default_value' => $existing->target,
-    '#required' => true,
+    '#required' => TRUE,
+    '#description' => t('The path for redirect target. This can be an internal ' .
+                        'Drupal path or alias such as node/add or an external ' .
+                        'URL such as http://drupal.org. Enter <front> to link ' .
+                        'to the front page.')
   );
   $options = array(
     300 => t('300 (Multiple Choices)'),
@@ -121,12 +165,14 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#title' => t('Status Code'),
     '#options' => $options,
     '#default_value' => $existing->status_code,
-    '#required' => true,
+    '#required' => TRUE,
   );
   $form['override'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow content to be redirected?'),
     '#default_value' => $existing->override,
+    '#description' => t('By default if a pattern matches and there is content ' .
+                        'for that target url then it will not be redirected.')
   );
   $form['weight'] = array(
     '#type' => 'weight',
@@ -138,9 +184,48 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#type' => 'submit',
     '#value' => t('Save'),
   );
+
   return $form;
 }
 
+/**
+ * Validate callback for redirect add/edit form.
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function match_redirect_add_form_validate($form, &$form_state) {
+  // Make sure the pattern does not interfere with the config
+  // functions of this module
+  $main = drupal_match_path(
+    'admin/config/search/match_redirect',
+    $form_state['values']['source_pattern']
+  );
+  $add = drupal_match_path(
+    'admin/config/search/match_redirect/add',
+    $form_state['values']['source_pattern']
+  );
+  $edit = drupal_match_path(
+    'admin/config/search/match_redirect/edit/1',
+    $form_state['values']['source_pattern']
+  );
+  $del = drupal_match_path(
+    'admin/config/search/match_redirect/delete/1',
+    $form_state['values']['source_pattern']
+  );
+  if ($main || $add || $edit || $del) {
+    if ($form_state['values']['override'] == 1) {
+      form_set_error('source_pattern', 'Pattern will interfere with the operation of this module.');
+    }
+  }
+}
+
+/**
+ * Submit callback for redirect add/edit form.
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function match_redirect_add_form_submit($form, &$form_state) {
   form_state_values_clean($form_state);
   $values = (object)$form_state['values'];
@@ -149,6 +234,14 @@ function match_redirect_add_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/config/search/match_redirect';
 }
 
+/**
+ * Returns the redirect delete confirm form.
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param object $redirect Redirect object that is loaded for deleting.
+ * @return array
+ */
 function match_redirect_delete_form($form, &$form_state, $redirect) {
   $form['rid'] = array(
     '#type' => 'value',
@@ -156,12 +249,18 @@ function match_redirect_delete_form($form, &$form_state, $redirect) {
   );
   return confirm_form(
     $form,
-    t('Are you sure you want to delete the redirect to %target?', 
+    t('Are you sure you want to delete the redirect to %target?',
     array('%target' => $redirect->target)),
     'admin/config/search/match_redirect'
   );
 }
 
+/**
+ * Submit callback for redirect delete confirm form.
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function match_redirect_delete_form_submit($form, &$form_state) {
   match_redirect_delete($form_state['values']['rid']);
   drupal_set_message(t('Redirect has been deleted.'));
