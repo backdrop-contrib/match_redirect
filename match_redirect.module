@@ -1,16 +1,160 @@
 <?php
 
+/**
+ * Implements hook_entity_info().
+ */
+function match_redirect_entity_info() {
+  $info['match_redirect'] = array(
+    'label' => t('Match Redirect'),
+    'base table' => 'match_redirect',
+    'entity keys' => array(
+      'id' => 'rid',
+    ),
+    'fieldable' => FALSE,
+    'uuid' => FALSE,
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function match_redirect_menu() {
+  $items['admin/config/search/match_redirect'] = array(
+    'title' => 'Match redirects',
+    'description' => 'Matching pattern redirects to target.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('match_redirect_list_form'),
+    'access arguments' => array('administer matchredirect'),
+    'file' => 'match_redirect.admin.inc',
+  );
+  
+  $items['admin/config/search/match_redirect/add'] = array(
+    'title' => 'Add match redirect',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('match_redirect_add_form'),
+    'access arguments' => array('administer matchredirect'),
+    'file' => 'match_redirect.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+  
+  $items['admin/config/search/match_redirect/edit/%match_redirect'] = array(
+    'title' => 'Edit match redirect',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('match_redirect_add_form', 5),
+    'access arguments' => array('administer matchredirect'),
+    'file' => 'match_redirect.admin.inc',
+  );
+  
+  $items['admin/config/search/match_redirect/delete/%match_redirect'] = array(
+    'title' => 'Delete match redirect',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('match_redirect_delete_form', 5),
+    'access arguments' => array('administer matchredirect'),
+    'file' => 'match_redirect.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function match_redirect_permission() {
+  $perm['administer matchredirect'] = array(
+    'title' => t('Administer Match Redirect'),
+  );
+  return $perm;
+}
+
+/**
+ * Implements hook_init().
+ */
 function match_redirect_init() {
-  $patterns = "our-story/*";
-  $redirect = "our-story";
+  // Get all redirects
+  $select = db_select('match_redirect', 'm');
+  $select->fields('m');
+  $results = $select->execute()->fetchAll();
+  // Alias of page user is on
   $currentAlias = drupal_get_path_alias();
-  if (drupal_match_path($currentAlias, $patterns)) {
-    if (!match_redirect_url_exists()) {
-      drupal_goto($redirect, array(), 301);
+  // Check each redirect for a match and stop if found
+  foreach ($results as $row) {
+    $patterns = $row->source_pattern;
+    $redirect = $row->target;
+    if (drupal_match_path($currentAlias, $patterns)) {
+      // Check if the current page exists
+      if (!match_redirect_url_exists()) {
+        //drupal_goto($redirect, array(), 301);
+        break;
+      }
     }
   }
 }
 
+/**
+ * Checks if current page is registered as a menu item (exists).
+ * 
+ * @return boolean
+ */
 function match_redirect_url_exists() {
   return (bool)menu_get_item();
+}
+
+function match_redirect_theme() {
+  return array(
+    'match_redirect_list_form' => array(
+      'render element' => 'form',
+      'file' => 'match_redirect.admin.inc',
+    ),
+  );
+}
+
+function match_redirect_save($redirect) {
+  $transaction = db_transaction();
+  
+  try {
+    // Load the stored entity, if any.
+    if (!empty($redirect->rid) && !isset($redirect->original)) {
+      $redirect->original = entity_load_unchanged('match_redirect', $redirect->rid);
+    }
+    
+    module_invoke_all('entity_presave', $redirect, 'match_redirect');
+    
+    if (!empty($redirect->rid)) {
+      drupal_write_record('match_redirect', $redirect, array('rid'));
+      module_invoke_all('entity_update', $redirect, 'match_redirect');
+    } else {
+      drupal_write_record('match_redirect', $redirect);
+      module_invoke_all('entity_insert', $redirect, 'match_redirect');
+    }
+  }
+  catch (Exception $e) {
+    $transaction->rollback('match_redirect');
+    watchdog_exception('match_redirect', $e);
+    throw $e;
+  }
+}
+
+function match_redirect_delete($rid) {
+  $transaction = db_transaction();
+  try {
+    db_delete('match_redirect')
+        ->condition('rid', $rid, '=')
+        ->execute();
+  }
+  catch (Exception $e) {
+    $transaction->rollback('match_redirect');
+    watchdog_exception('match_redirect', $e);
+    throw $e;
+  }
+}
+
+function match_redirect_load($rid, $reset = FALSE) {
+  $redirects = entity_load('match_redirect', array($rid), array(), $reset);
+  return !empty($redirects) ? reset($redirects) : FALSE;
+}
+
+function match_redirect_load_multiple($rids = array(), array $conditions = array(), $reset = FALSE) {
+  return entity_load('match_redirect', $rids, $conditions, $reset);
 }

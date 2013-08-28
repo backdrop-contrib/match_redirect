@@ -1,3 +1,6 @@
 name = Match Redirect
 description = Matching source patterns are redirected to a single destination.
 core = 7.x
+files[] = match_redirect.module
+files[] = match_redirect.install
+files[] = match_redirect.admin.inc
