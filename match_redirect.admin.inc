@@ -197,26 +197,20 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
 function match_redirect_add_form_validate($form, &$form_state) {
   // Make sure the pattern does not interfere with the config
   // functions of this module
-  $main = drupal_match_path(
+  $module_paths = array(
     'admin/config/search/match_redirect',
-    $form_state['values']['source_pattern']
-  );
-  $add = drupal_match_path(
     'admin/config/search/match_redirect/add',
-    $form_state['values']['source_pattern']
-  );
-  $edit = drupal_match_path(
     'admin/config/search/match_redirect/edit/1',
-    $form_state['values']['source_pattern']
+    'admin/config/search/match_redirect/delete/1'
   );
-  $del = drupal_match_path(
-    'admin/config/search/match_redirect/delete/1',
-    $form_state['values']['source_pattern']
-  );
-  if ($main || $add || $edit || $del) {
-    if ($form_state['values']['override'] == 1) {
-      form_set_error('source_pattern', 'Pattern will interfere with the operation of this module.');
+  $found = false;
+  foreach ($module_paths as $path) {
+    if (drupal_match_path($path, $form_state['values']['source_pattern'])) {
+      $found = true;
     }
+  }
+  if ($found && $form_state['values']['override'] == 1) {
+    form_set_error('source_pattern', 'Pattern will interfere with the operation of this module.');
   }
 }
 

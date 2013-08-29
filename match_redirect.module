@@ -74,29 +74,23 @@ function match_redirect_permission() {
  * Implements hook_init().
  */
 function match_redirect_init() {
-  // If a redirect just fired then ignore (loop protection)
-  if (isset($_SESSION['match_redirect']) && $_SESSION['match_redirect']) {
-    $_SESSION['match_redirect'] = FALSE;
-  }
-  else {
-    // Get all redirects
-    $results = match_redirect_load_multiple(array());
-    // Alias of page user is on
-    $current_alias = drupal_get_path_alias();
-    // Check each redirect for a match and stop if found
-    foreach ($results as $row) {
-      $patterns = $row->source_pattern;
-      $redirect = $row->target;
-      $override = $row->override;
-      $code = $row->status_code;
-      if (drupal_match_path($current_alias, $patterns)) {
-        // Check if the current page exists unless overridden
-        if ($override || !match_redirect_url_exists()) {
-          // Do the redirect
-          $_SESSION['match_redirect'] = TRUE;
-          drupal_goto($redirect, array(), $code);
-          break;
-        }
+  // Get all redirects
+  $results = match_redirect_load_multiple(array());
+  // Alias of page user is on
+  $current_alias = drupal_get_path_alias();
+  // Check each redirect for a match and stop if found
+  foreach ($results as $row) {
+    $patterns = $row->source_pattern;
+    $redirect = $row->target;
+    $override = $row->override;
+    $code = $row->status_code;
+    if (drupal_match_path($current_alias, $patterns)) {
+      // Check if the current page exists unless overridden
+      if ($override || !match_redirect_url_exists()) {
+        // Do the redirect
+        $_SESSION['match_redirect'] = TRUE;
+        drupal_goto($redirect, array(), $code);
+        break;
       }
     }
   }
