@@ -9,4 +9,4 @@ Features
 * Pattern matching allowing wildcard redirects
 * Redirect code choice (301, 302, etc)
 * Filters out existing pages so they won't be redirected (unless overridden)
-* Loop protection (no chaining redirects only one allowed)
+* Loop protection (no chaining redirects allowed)
