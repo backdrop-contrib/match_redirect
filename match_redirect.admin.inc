@@ -195,6 +195,10 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
  * @param array $form_state
  */
 function match_redirect_add_form_validate($form, &$form_state) {
+  // Don't allow target to be within it's own pattern
+  if (drupal_match_path($form_state['values']['target'], $form_state['values']['source_pattern'])) {
+      form_set_error('target', 'Target falls within the specified pattern.');
+    }
   // Make sure the pattern does not interfere with the config
   // functions of this module
   $module_paths = array(
@@ -211,6 +215,17 @@ function match_redirect_add_form_validate($form, &$form_state) {
   }
   if ($found && $form_state['values']['override'] == 1) {
     form_set_error('source_pattern', 'Pattern will interfere with the operation of this module.');
+  }
+  $redirects = match_redirect_load_multiple(array());
+  foreach ($redirects as $redirect) {
+    // Do not allow patterns to trigger existing targets
+    if (drupal_match_path($redirect->target, $form_state['values']['source_pattern'])) {
+      form_set_error('source_pattern', 'Pattern will trigger an aready created target.');
+    }
+    // Do not allow targets to fall within existing patterns
+    if (drupal_match_path($form_state['values']['target'], $redirect->source_pattern)) {
+      form_set_error('target', 'Target falls within redirect patterns already created.');
+    }
   }
 }
 
