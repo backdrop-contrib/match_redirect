@@ -7,10 +7,6 @@
 
 /**
  * Returns the redirect listing form that allows reordering of weights.
- *
- * @param array $form
- * @param array $form_state
- * @return array
  */
 function match_redirect_list_form($form, &$form_state) {
   $destination = drupal_get_destination();
@@ -55,9 +51,6 @@ function match_redirect_list_form($form, &$form_state) {
 
 /**
  * Submit callback for redirect listing form (saves weights).
- *
- * @param array $form
- * @param array $form_state
  */
 function match_redirect_list_form_submit($form, &$form_state) {
   if (isset($form_state['values']['redirects'])) {
@@ -75,7 +68,9 @@ function match_redirect_list_form_submit($form, &$form_state) {
  * Theme callback for redirect listing form (renders form as re-orderable table).
  *
  * @param array $variables
+ *   
  * @return string
+ *   Rendered table HTML output.
  */
 function theme_match_redirect_list_form($variables) {
   $form = $variables['form'];
@@ -116,12 +111,8 @@ function theme_match_redirect_list_form($variables) {
 /**
  * Returns the redirect edit/add form.
  *
- * @param array $form
- * @param array $form_state
  * @param object $existing 
  *   Redirect object that is loaded for editing.
- *
- * @return array
  */
 function match_redirect_add_form($form, &$form_state, $existing = NULL) {
   // No existing redirect provided create empty class.
@@ -192,9 +183,6 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
 
 /**
  * Validate callback for redirect add/edit form.
- *
- * @param array $form
- * @param array $form_state
  */
 function match_redirect_add_form_validate($form, &$form_state) {
   // Don't allow target to be within it's own pattern.
@@ -233,9 +221,6 @@ function match_redirect_add_form_validate($form, &$form_state) {
 
 /**
  * Submit callback for redirect add/edit form.
- *
- * @param array $form
- * @param array $form_state
  */
 function match_redirect_add_form_submit($form, &$form_state) {
   form_state_values_clean($form_state);
@@ -248,11 +233,8 @@ function match_redirect_add_form_submit($form, &$form_state) {
 /**
  * Returns the redirect delete confirm form.
  *
- * @param array $form
- * @param array $form_state
  * @param object $redirect
  *   Redirect object that is loaded for deleting.
- * @return array
  */
 function match_redirect_delete_form($form, &$form_state, $redirect) {
   $form['rid'] = array(
@@ -269,9 +251,6 @@ function match_redirect_delete_form($form, &$form_state, $redirect) {
 
 /**
  * Submit callback for redirect delete confirm form.
- *
- * @param array $form
- * @param array $form_state
  */
 function match_redirect_delete_form_submit($form, &$form_state) {
   match_redirect_delete($form_state['values']['rid']);

@@ -102,7 +102,7 @@ function match_redirect_init() {
  *   Whether or not the menu item was found.
  */
 function match_redirect_url_exists() {
-  return (bool)menu_get_item();
+  return (bool) menu_get_item();
 }
 
 /**
