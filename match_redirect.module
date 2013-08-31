@@ -74,20 +74,20 @@ function match_redirect_permission() {
  * Implements hook_init().
  */
 function match_redirect_init() {
-  // Get all redirects
+  // Get all redirects.
   $results = match_redirect_load_multiple(array());
-  // Alias of page user is on
+  // Alias of page user is on.
   $current_alias = drupal_get_path_alias();
-  // Check each redirect for a match and stop if found
+  // Check each redirect for a match and stop if found.
   foreach ($results as $row) {
     $patterns = $row->source_pattern;
     $redirect = $row->target;
     $override = $row->override;
     $code = $row->status_code;
     if (drupal_match_path($current_alias, $patterns)) {
-      // Check if the current page exists unless overridden
+      // Check if the current page exists unless overridden.
       if ($override || !match_redirect_url_exists()) {
-        // Do the redirect
+        // Do the redirect.
         drupal_goto($redirect, array(), $code);
         break;
       }
@@ -131,18 +131,18 @@ function match_redirect_save($redirect) {
       $redirect->original = entity_load_unchanged('match_redirect', $redirect->rid);
     }
 
-    // Invoke hook_entity_presave() on other modules
+    // Invoke hook_entity_presave() on other modules.
     module_invoke_all('entity_presave', $redirect, 'match_redirect');
 
-    // Save to the database and fire relevent hooks
+    // Save to the database and fire relevent hooks.
     if (!empty($redirect->rid)) {
       drupal_write_record('match_redirect', $redirect, array('rid'));
-      // Invoke hook_entity_update() on other modules
+      // Invoke hook_entity_update() on other modules.
       module_invoke_all('entity_update', $redirect, 'match_redirect');
     }
     else {
       drupal_write_record('match_redirect', $redirect);
-      // Invoke hook_entity_insert() on other modules
+      // Invoke hook_entity_insert() on other modules.
       module_invoke_all('entity_insert', $redirect, 'match_redirect');
     }
 
@@ -165,7 +165,7 @@ function match_redirect_delete($rid) {
   $transaction = db_transaction();
   $redirect = match_redirect_load($rid);
   try {
-    // Invoke hook_entity_delete() on other modules
+    // Invoke hook_entity_delete() on other modules.
     module_invoke_all('entity_delete', $redirect, 'match_redirect');
 
     db_delete('match_redirect')
@@ -200,16 +200,16 @@ function match_redirect_load($rid, $reset = FALSE) {
  * @return mixed
  */
 function match_redirect_load_multiple($rids = array(), array $conditions = array(), $reset = FALSE) {
-  // Order by weight
+  // Order by weight.
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'match_redirect');
-  // Get only provided rids but exclude if $rids array is empty
+  // Get only provided rids but exclude if $rids array is empty.
   if (!empty($rids)) {
     $query->propertyCondition('rid', $rids, 'IN');
   }
   $query->propertyOrderBy('weight');
   $result = $query->execute();
-  // Check for result and substitute reordered rids
+  // Check for result and substitute reordered rids.
   if (isset($result['match_redirect']) && !empty($result['match_redirect'])) {
     $rids = array_keys($result['match_redirect']);
   }

@@ -15,9 +15,9 @@
 function match_redirect_list_form($form, &$form_state) {
   $destination = drupal_get_destination();
   $form['#tree'] = TRUE;
-  // Get all redirects
+  // Get all redirects.
   $results = match_redirect_load_multiple(array());
-  // Build out form structure to be themed as a table
+  // Build out form structure to be themed as a table.
   foreach ($results as $row) {
     $form['redirects'][$row->rid]['pattern'] = array('#markup' => htmlentities($row->source_pattern));
     $form['redirects'][$row->rid]['target'] = array('#markup' => htmlentities($row->target));
@@ -28,7 +28,7 @@ function match_redirect_list_form($form, &$form_state) {
       '#title_display' => 'invisible',
       '#default_value' => $row->weight,
     );
-    // Edit and delete operations for redirects
+    // Edit and delete operations for redirects.
     $operations = array();
     $operations['edit'] = array(
       'title' => t('Edit'),
@@ -62,7 +62,7 @@ function match_redirect_list_form($form, &$form_state) {
 function match_redirect_list_form_submit($form, &$form_state) {
   if (isset($form_state['values']['redirects'])) {
     foreach ($form_state['values']['redirects'] as $rid => $weight) {
-      // Save new weights
+      // Save new weights.
       $redirect = new stdClass();
       $redirect->rid = $rid;
       $redirect->weight = $weight['weight'];
@@ -82,7 +82,7 @@ function theme_match_redirect_list_form($variables) {
 
   $rows = array();
   foreach (element_children($form['redirects']) as $id) {
-    // Break the form into variables theme_table expects and add needed classes
+    // Break the form into variables theme_table expects and add needed classes.
     $form['redirects'][$id]['weight']['#attributes']['class'] = array('text-format-order-weight');
     $rows[] = array(
       'data' => array(
@@ -95,7 +95,7 @@ function theme_match_redirect_list_form($variables) {
       'class' => array('draggable'),
     );
   }
-  // Handle no redirects
+  // Handle no redirects.
   if (empty($rows)) {
     $rows[] = array(
       'data' => array(
@@ -103,11 +103,11 @@ function theme_match_redirect_list_form($variables) {
       ),
     );
   }
-  // Header row
+  // Header row.
   $header = array(t('Pattern'), t('Target'), t('Code'), t('Weight'), t('Operations'));
   $output = theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'text-format-order')));
   $output .= drupal_render_children($form);
-  // Add re-ordering js
+  // Add re-ordering js.
   drupal_add_tabledrag('text-format-order', 'order', 'sibling', 'text-format-order-weight');
 
   return $output;
@@ -122,7 +122,7 @@ function theme_match_redirect_list_form($variables) {
  * @return array
  */
 function match_redirect_add_form($form, &$form_state, $existing = NULL) {
-  // No existing redirect provided create empty class
+  // No existing redirect provided create empty class.
   if (!isset($existing)) {
     $existing = new stdClass();
   }
@@ -195,12 +195,12 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
  * @param array $form_state
  */
 function match_redirect_add_form_validate($form, &$form_state) {
-  // Don't allow target to be within it's own pattern
+  // Don't allow target to be within it's own pattern.
   if (drupal_match_path($form_state['values']['target'], $form_state['values']['source_pattern'])) {
-      form_set_error('target', 'Target falls within the specified pattern.');
+      form_set_error('target', t('Target falls within the specified pattern.'));
     }
   // Make sure the pattern does not interfere with the config
-  // functions of this module
+  // functions of this module.
   $module_paths = array(
     'admin/config/search/match_redirect',
     'admin/config/search/match_redirect/add',
@@ -214,17 +214,17 @@ function match_redirect_add_form_validate($form, &$form_state) {
     }
   }
   if ($found && $form_state['values']['override'] == 1) {
-    form_set_error('source_pattern', 'Pattern will interfere with the operation of this module.');
+    form_set_error('source_pattern', t('Pattern will interfere with the operation of this module.'));
   }
   $redirects = match_redirect_load_multiple(array());
   foreach ($redirects as $redirect) {
-    // Do not allow patterns to trigger existing targets
+    // Do not allow patterns to trigger existing targets.
     if (drupal_match_path($redirect->target, $form_state['values']['source_pattern'])) {
-      form_set_error('source_pattern', 'Pattern will trigger an aready created target.');
+      form_set_error('source_pattern', t('Pattern will trigger an aready created target.'));
     }
-    // Do not allow targets to fall within existing patterns
+    // Do not allow targets to fall within existing patterns.
     if (drupal_match_path($form_state['values']['target'], $redirect->source_pattern)) {
-      form_set_error('target', 'Target falls within redirect patterns already created.');
+      form_set_error('target', t('Target falls within redirect patterns already created.'));
     }
   }
 }
@@ -248,7 +248,8 @@ function match_redirect_add_form_submit($form, &$form_state) {
  *
  * @param array $form
  * @param array $form_state
- * @param object $redirect Redirect object that is loaded for deleting.
+ * @param object $redirect
+ *   Redirect object that is loaded for deleting.
  * @return array
  */
 function match_redirect_delete_form($form, &$form_state, $redirect) {

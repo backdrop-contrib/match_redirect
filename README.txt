@@ -1,7 +1,10 @@
 Match Redirect
 --------------
 
-This module provides redirecting based on path patterns with wildcards. This functions much like how block page visibility works. You specify a pattern like "old-blog/*" and a target like "new-blog" and all pages under old-blog will be redirected to new-blog.
+This module provides redirecting based on path patterns with wildcards. This 
+functions much like how block page visibility works. You specify a pattern like 
+"old-blog/*" and a target like "new-blog" and all pages under old-blog will be 
+redirected to new-blog.
 
 Features
 --------
