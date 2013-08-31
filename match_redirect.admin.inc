@@ -73,7 +73,7 @@ function match_redirect_list_form_submit($form, &$form_state) {
 }
 
 /**
- * Theme callback for redirect listing form (renders form as re-orderable table).
+ * Theme callback for redirect listing form (renders form as reorderable table).
  *
  * @param array $variables
  *   An array containing the form to be rendered.
@@ -103,7 +103,7 @@ function theme_match_redirect_list_form($variables) {
   if (empty($rows)) {
     $rows[] = array(
       'data' => array(
-          array('data' => t('There are currently no redirects.'), 'colspan' => 5),
+        array('data' => t('There are currently no redirects.'), 'colspan' => 5),
       ),
     );
   }
@@ -210,7 +210,7 @@ function match_redirect_add_form_validate($form, &$form_state) {
     'admin/config/search/match_redirect',
     'admin/config/search/match_redirect/add',
     'admin/config/search/match_redirect/edit/1',
-    'admin/config/search/match_redirect/delete/1'
+    'admin/config/search/match_redirect/delete/1',
   );
   $found = FALSE;
   foreach ($module_paths as $path) {
