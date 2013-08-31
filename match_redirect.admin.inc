@@ -37,7 +37,15 @@ function match_redirect_list_form($form, &$form_state) {
       'query' => $destination,
     );
     $form['redirects'][$row->rid]['operations'] = array(
-      '#markup' => theme('links', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline', 'nowrap'))))
+      '#markup' => theme(
+        'links', 
+        array(
+          'links' => $operations, 
+          'attributes' => array(
+            'class' => array('links', 'inline', 'nowrap')
+          )
+        )
+      ),
     );
   }
   $form['actions'] = array('#type' => 'actions');
@@ -68,7 +76,8 @@ function match_redirect_list_form_submit($form, &$form_state) {
  * Theme callback for redirect listing form (renders form as re-orderable table).
  *
  * @param array $variables
- *   
+ *   An array containing the form to be rendered.
+ *
  * @return string
  *   Rendered table HTML output.
  */
@@ -129,20 +138,14 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#title' => t('Pattern'),
     '#default_value' => $existing->source_pattern,
     '#required' => TRUE,
-    '#description' => t('Specify redirect sources by using their paths. Enter ' .
-                        'one path per line. The \'*\' character is a wildcard. ' .
-                        'Example paths are blog for the blog page and blog/* ' .
-                        'for every personal blog. <front> is the front page.')
+    '#description' => t('Specify redirect sources by using their paths. Enter one path per line. The \'*\' character is a wildcard. Example paths are blog for the blog page and blog/* for every personal blog. <front> is the front page.'),
   );
   $form['target'] = array(
     '#type' => 'textfield',
     '#title' => t('Target'),
     '#default_value' => $existing->target,
     '#required' => TRUE,
-    '#description' => t('The path for redirect target. This can be an internal ' .
-                        'Drupal path or alias such as node/add or an external ' .
-                        'URL such as http://drupal.org. Enter <front> to link ' .
-                        'to the front page.')
+    '#description' => t('The path for redirect target. This can be an internal Drupal path or alias such as node/add or an external URL such as http://drupal.org. Enter <front> to link to the front page.'),
   );
   $options = array(
     300 => t('300 (Multiple Choices)'),
@@ -164,8 +167,7 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#type' => 'checkbox',
     '#title' => t('Allow content to be redirected?'),
     '#default_value' => $existing->override,
-    '#description' => t('By default if a pattern matches and there is content ' .
-                        'for that target url then it will not be redirected.')
+    '#description' => t('By default if a pattern matches and there is content for that target url then it will not be redirected.'),
   );
   $form['weight'] = array(
     '#type' => 'weight',
@@ -224,7 +226,7 @@ function match_redirect_add_form_validate($form, &$form_state) {
  */
 function match_redirect_add_form_submit($form, &$form_state) {
   form_state_values_clean($form_state);
-  $values = (object)$form_state['values'];
+  $values = (object) $form_state['values'];
   match_redirect_save($values);
   drupal_set_message(t('Redirect saved.'));
   $form_state['redirect'] = 'admin/config/search/match_redirect';
