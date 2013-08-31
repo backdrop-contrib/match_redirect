@@ -38,12 +38,12 @@ function match_redirect_list_form($form, &$form_state) {
     );
     $form['redirects'][$row->rid]['operations'] = array(
       '#markup' => theme(
-        'links', 
+        'links',
         array(
-          'links' => $operations, 
+          'links' => $operations,
           'attributes' => array(
-            'class' => array('links', 'inline', 'nowrap')
-          )
+            'class' => array('links', 'inline', 'nowrap'),
+          ),
         )
       ),
     );
@@ -103,13 +103,26 @@ function theme_match_redirect_list_form($variables) {
   if (empty($rows)) {
     $rows[] = array(
       'data' => array(
-          array('data' => t('There are currently no redirects.'), 'colspan' => 5)
+          array('data' => t('There are currently no redirects.'), 'colspan' => 5),
       ),
     );
   }
   // Header row.
-  $header = array(t('Pattern'), t('Target'), t('Code'), t('Weight'), t('Operations'));
-  $output = theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'text-format-order')));
+  $header = array(
+    t('Pattern'),
+    t('Target'),
+    t('Code'),
+    t('Weight'),
+    t('Operations'),
+  );
+  $output = theme(
+    'table',
+    array(
+      'header' => $header,
+      'rows' => $rows,
+      'attributes' => array('id' => 'text-format-order'),
+    )
+  );
   $output .= drupal_render_children($form);
   // Add re-ordering js.
   drupal_add_tabledrag('text-format-order', 'order', 'sibling', 'text-format-order-weight');
@@ -138,7 +151,7 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#title' => t('Pattern'),
     '#default_value' => $existing->source_pattern,
     '#required' => TRUE,
-    '#description' => t('Specify redirect sources by using their paths. Enter one path per line. The \'*\' character is a wildcard. Example paths are blog for the blog page and blog/* for every personal blog. <front> is the front page.'),
+    '#description' => t("Specify redirect sources by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are blog for the blog page and blog/* for every personal blog. <front> is the front page."),
   );
   $form['target'] = array(
     '#type' => 'textfield',
@@ -189,8 +202,8 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
 function match_redirect_add_form_validate($form, &$form_state) {
   // Don't allow target to be within it's own pattern.
   if (drupal_match_path($form_state['values']['target'], $form_state['values']['source_pattern'])) {
-      form_set_error('target', t('Target falls within the specified pattern.'));
-    }
+    form_set_error('target', t('Target falls within the specified pattern.'));
+  }
   // Make sure the pattern does not interfere with the config
   // functions of this module.
   $module_paths = array(
@@ -199,7 +212,7 @@ function match_redirect_add_form_validate($form, &$form_state) {
     'admin/config/search/match_redirect/edit/1',
     'admin/config/search/match_redirect/delete/1'
   );
-  $found = false;
+  $found = FALSE;
   foreach ($module_paths as $path) {
     if (drupal_match_path($path, $form_state['values']['source_pattern'])) {
       $found = TRUE;
