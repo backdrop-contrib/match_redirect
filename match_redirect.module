@@ -98,7 +98,8 @@ function match_redirect_init() {
 /**
  * Checks if current page is registered as a menu item (exists).
  *
- * @return boolean
+ * @return bool
+ *   Whether or not the menu item was found.
  */
 function match_redirect_url_exists() {
   return (bool)menu_get_item();
@@ -120,6 +121,8 @@ function match_redirect_theme() {
  * Saves a redirect.
  *
  * @param object $redirect
+ *   The redirect object to be saved.
+ * 
  * @throws Exception
  */
 function match_redirect_save($redirect) {
@@ -159,6 +162,8 @@ function match_redirect_save($redirect) {
  * Deletes a redirect.
  *
  * @param int $rid
+ *   The id of the redirect to be deleted.
+ * 
  * @throws Exception
  */
 function match_redirect_delete($rid) {
@@ -183,8 +188,12 @@ function match_redirect_delete($rid) {
  * Loads a redirect and returns it.
  *
  * @param int $rid
- * @param boolean $reset
+ *   The id of the redirect to be loaded.
+ * @param bool $reset
+ *   Whether to reset the internal cache for the requested entity type.
+ * 
  * @return mixed
+ *   Returns loaded redirect or FALSE if not found.
  */
 function match_redirect_load($rid, $reset = FALSE) {
   $redirects = entity_load('match_redirect', array($rid), array(), $reset);
@@ -194,10 +203,18 @@ function match_redirect_load($rid, $reset = FALSE) {
 /**
  * Loads redirects and returns them ordered by weight.
  *
- * @param int $rid
+ * @param array $rids
+ *   Array of redirect ids to be loaded.
  * @param array $conditions
- * @param boolean $reset
- * @return mixed
+ *   An associative array of conditions on the base table, where the keys are 
+ *   the database fields and the values are the values those fields must have. 
+ *   Instead, it is preferable to use EntityFieldQuery to retrieve a list of 
+ *   entity IDs loadable by this function.
+ * @param bool $reset
+ *   Whether to reset the internal cache for the requested entity type.
+ * 
+ * @return array
+ *   Returns loaded redirects array or empty array if none found.
  */
 function match_redirect_load_multiple($rids = array(), array $conditions = array(), $reset = FALSE) {
   // Order by weight.

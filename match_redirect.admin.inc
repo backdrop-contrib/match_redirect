@@ -118,7 +118,9 @@ function theme_match_redirect_list_form($variables) {
  *
  * @param array $form
  * @param array $form_state
- * @param object $existing Redirect object that is loaded for editing.
+ * @param object $existing 
+ *   Redirect object that is loaded for editing.
+ *
  * @return array
  */
 function match_redirect_add_form($form, &$form_state, $existing = NULL) {
@@ -210,7 +212,7 @@ function match_redirect_add_form_validate($form, &$form_state) {
   $found = false;
   foreach ($module_paths as $path) {
     if (drupal_match_path($path, $form_state['values']['source_pattern'])) {
-      $found = true;
+      $found = TRUE;
     }
   }
   if ($found && $form_state['values']['override'] == 1) {
