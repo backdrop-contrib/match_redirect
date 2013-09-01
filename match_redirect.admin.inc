@@ -144,19 +144,19 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
 
   $form['rid'] = array(
     '#type' => 'value',
-    '#value' => $existing->rid,
+    '#value' => isset($existing->rid) ? $existing->rid : NULL,
   );
   $form['source_pattern'] = array(
     '#type' => 'textarea',
     '#title' => t('Pattern'),
-    '#default_value' => $existing->source_pattern,
+    '#default_value' => isset($existing->source_pattern) ? $existing->source_pattern : NULL,
     '#required' => TRUE,
     '#description' => t("Specify redirect sources by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are blog for the blog page and blog/* for every personal blog. <front> is the front page."),
   );
   $form['target'] = array(
     '#type' => 'textfield',
     '#title' => t('Target'),
-    '#default_value' => $existing->target,
+    '#default_value' => isset($existing->target) ? $existing->target : NULL,
     '#required' => TRUE,
     '#description' => t('The path for redirect target. This can be an internal Drupal path or alias such as node/add or an external URL such as http://drupal.org. Enter <front> to link to the front page.'),
   );
@@ -173,13 +173,13 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#type' => 'select',
     '#title' => t('Status Code'),
     '#options' => $options,
-    '#default_value' => $existing->status_code,
+    '#default_value' => isset($existing->status_code) ? $existing->status_code : NULL,
     '#required' => TRUE,
   );
   $form['override'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow content to be redirected?'),
-    '#default_value' => $existing->override,
+    '#default_value' => isset($existing->override) ? $existing->override : NULL,
     '#description' => t('By default if a pattern matches and there is content for that target url then it will not be redirected.'),
   );
   $form['weight'] = array(
