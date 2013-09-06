@@ -85,19 +85,21 @@ function theme_match_redirect_list_form($variables) {
   $form = $variables['form'];
 
   $rows = array();
-  foreach (element_children($form['redirects']) as $id) {
-    // Break the form into variables theme_table expects and add needed classes.
-    $form['redirects'][$id]['weight']['#attributes']['class'] = array('text-format-order-weight');
-    $rows[] = array(
-      'data' => array(
-        drupal_render($form['redirects'][$id]['pattern']),
-        drupal_render($form['redirects'][$id]['target']),
-        drupal_render($form['redirects'][$id]['code']),
-        drupal_render($form['redirects'][$id]['weight']),
-        drupal_render($form['redirects'][$id]['operations']),
-      ),
-      'class' => array('draggable'),
-    );
+  if (!empty($form['redirects'])) {
+    foreach (element_children($form['redirects']) as $id) {
+      // Break the form into variables theme_table expects and add needed classes.
+      $form['redirects'][$id]['weight']['#attributes']['class'] = array('text-format-order-weight');
+      $rows[] = array(
+        'data' => array(
+          drupal_render($form['redirects'][$id]['pattern']),
+          drupal_render($form['redirects'][$id]['target']),
+          drupal_render($form['redirects'][$id]['code']),
+          drupal_render($form['redirects'][$id]['weight']),
+          drupal_render($form['redirects'][$id]['operations']),
+        ),
+        'class' => array('draggable'),
+      );
+    }
   }
   // Handle no redirects.
   if (empty($rows)) {
