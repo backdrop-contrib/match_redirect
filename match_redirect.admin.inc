@@ -153,14 +153,14 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#title' => t('Pattern'),
     '#default_value' => isset($existing->source_pattern) ? $existing->source_pattern : NULL,
     '#required' => TRUE,
-    '#description' => t("Specify redirect sources by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are blog for the blog page and blog/* for every personal blog. <front> is the front page."),
+    '#description' => t("Specify redirect sources by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
   );
   $form['target'] = array(
     '#type' => 'textfield',
     '#title' => t('Target'),
     '#default_value' => isset($existing->target) ? $existing->target : NULL,
     '#required' => TRUE,
-    '#description' => t('The path for redirect target. This can be an internal Drupal path or alias such as node/add or an external URL such as http://drupal.org. Enter <front> to link to the front page.'),
+    '#description' => t('The path for redirect target. This can be an internal Drupal path or alias such as %add-node or an external URL such as %drupal. Enter %front to link to the front page.', array('%add-node' => 'node/add', '%drupal' => 'http://drupal.org', '%front' => '<front>')),
   );
   $options = array(
     300 => t('300 (Multiple Choices)'),
