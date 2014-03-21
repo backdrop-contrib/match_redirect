@@ -39,6 +39,13 @@ function match_redirect_schema() {
         'default' => 0,
         'description' => 'allow existing content to be redirected.',
       ),
+      'query' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'allow query string to be passed with the redirect.',
+      ),
       'weight' => array(
         'type' => 'int',
         'not null' => TRUE,
@@ -49,4 +56,19 @@ function match_redirect_schema() {
   );
 
   return $schema;
+}
+
+
+/**
+ * Add the {match_redirect}.query field.
+ */
+function match_redirect_update_1() {
+  $field = array(
+    'type' => 'int',
+    'size' => 'tiny',
+    'not null' => TRUE,
+    'default' => 0,
+    'description' => 'allow query string to be passed with the redirect.',
+  );
+  db_add_field('match_redirect', 'query', $field);
 }

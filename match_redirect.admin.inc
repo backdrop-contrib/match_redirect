@@ -182,7 +182,12 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#type' => 'checkbox',
     '#title' => t('Allow content to be redirected?'),
     '#default_value' => isset($existing->override) ? $existing->override : NULL,
-    '#description' => t('By default if a pattern matches and there is content for that target url then it will not be redirected.'),
+    '#description' => t('By default if a pattern matches and there is content for that pattern url then it will not be redirected.'),
+  );
+  $form['query'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Retain query string through redirect?'),
+    '#default_value' => isset($existing->query) ? $existing->query : NULL,
   );
   $form['weight'] = array(
     '#type' => 'weight',

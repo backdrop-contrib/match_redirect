@@ -83,12 +83,17 @@ function match_redirect_init() {
     $patterns = $row->source_pattern;
     $redirect = $row->target;
     $override = $row->override;
+    $query = $row->query;
     $code = $row->status_code;
     if (drupal_match_path($current_alias, $patterns)) {
       // Check if the current page exists unless overridden.
       if ($override || !match_redirect_url_exists()) {
+        $options = array();
+        if ($query) {
+          $options['query'] = drupal_get_query_parameters();
+        }
         // Do the redirect.
-        drupal_goto($redirect, array(), $code);
+        drupal_goto($redirect, $options, $code);
         break;
       }
     }
