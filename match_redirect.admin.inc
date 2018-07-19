@@ -9,7 +9,7 @@
  * Returns the redirect listing form that allows reordering of weights.
  */
 function match_redirect_list_form($form, &$form_state) {
-  $destination = drupal_get_destination();
+  $destination = backdrop_get_destination();
   $form['#tree'] = TRUE;
   // Get all redirects.
   $results = match_redirect_load_multiple(array());
@@ -28,12 +28,12 @@ function match_redirect_list_form($form, &$form_state) {
     $operations = array();
     $operations['edit'] = array(
       'title' => t('Edit'),
-      'href' => 'admin/config/search/match_redirect/edit/' . $row->rid,
+      'href' => 'admin/config/urls/match_redirect/edit/' . $row->rid,
       'query' => $destination,
     );
     $operations['delete'] = array(
       'title' => t('Delete'),
-      'href' => 'admin/config/search/match_redirect/delete/' . $row->rid,
+      'href' => 'admin/config/urls/match_redirect/delete/' . $row->rid,
       'query' => $destination,
     );
     $form['redirects'][$row->rid]['operations'] = array(
@@ -91,11 +91,11 @@ function theme_match_redirect_list_form($variables) {
       $form['redirects'][$id]['weight']['#attributes']['class'] = array('text-format-order-weight');
       $rows[] = array(
         'data' => array(
-          drupal_render($form['redirects'][$id]['pattern']),
-          drupal_render($form['redirects'][$id]['target']),
-          drupal_render($form['redirects'][$id]['code']),
-          drupal_render($form['redirects'][$id]['weight']),
-          drupal_render($form['redirects'][$id]['operations']),
+          backdrop_render($form['redirects'][$id]['pattern']),
+          backdrop_render($form['redirects'][$id]['target']),
+          backdrop_render($form['redirects'][$id]['code']),
+          backdrop_render($form['redirects'][$id]['weight']),
+          backdrop_render($form['redirects'][$id]['operations']),
         ),
         'class' => array('draggable'),
       );
@@ -125,9 +125,9 @@ function theme_match_redirect_list_form($variables) {
       'attributes' => array('id' => 'text-format-order'),
     )
   );
-  $output .= drupal_render_children($form);
+  $output .= backdrop_render_children($form);
   // Add re-ordering js.
-  drupal_add_tabledrag('text-format-order', 'order', 'sibling', 'text-format-order-weight');
+  backdrop_add_tabledrag('text-format-order', 'order', 'sibling', 'text-format-order-weight');
 
   return $output;
 }
@@ -135,7 +135,7 @@ function theme_match_redirect_list_form($variables) {
 /**
  * Returns the redirect edit/add form.
  *
- * @param object $existing 
+ * @param object $existing
  *   Redirect object that is loaded for editing.
  */
 function match_redirect_add_form($form, &$form_state, $existing = NULL) {
@@ -160,7 +160,7 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
     '#title' => t('Target'),
     '#default_value' => isset($existing->target) ? $existing->target : NULL,
     '#required' => TRUE,
-    '#description' => t('The path for redirect target. This can be an internal Drupal path or alias such as %add-node or an external URL such as %drupal. Enter %front to link to the front page.', array('%add-node' => 'node/add', '%drupal' => 'http://drupal.org', '%front' => '<front>')),
+    '#description' => t('The path for redirect target. This can be an internal path or alias such as %add-node or an external URL such as %backdropcms. Enter %front to link to the front page.', array('%add-node' => 'node/add', '%backdropcms' => 'http://backdropcms.org', '%front' => '<front>')),
   );
   $options = array(
     300 => t('300 (Multiple Choices)'),
@@ -208,20 +208,20 @@ function match_redirect_add_form($form, &$form_state, $existing = NULL) {
  */
 function match_redirect_add_form_validate($form, &$form_state) {
   // Don't allow target to be within it's own pattern.
-  if (drupal_match_path($form_state['values']['target'], $form_state['values']['source_pattern'])) {
+  if (backdrop_match_path($form_state['values']['target'], $form_state['values']['source_pattern'])) {
     form_set_error('target', t('Target falls within the specified pattern.'));
   }
   // Make sure the pattern does not interfere with the config
   // functions of this module.
   $module_paths = array(
-    'admin/config/search/match_redirect',
-    'admin/config/search/match_redirect/add',
-    'admin/config/search/match_redirect/edit/1',
-    'admin/config/search/match_redirect/delete/1',
+    'admin/config/urls/match_redirect',
+    'admin/config/urls/match_redirect/add',
+    'admin/config/urls/match_redirect/edit/1',
+    'admin/config/urls/match_redirect/delete/1',
   );
   $found = FALSE;
   foreach ($module_paths as $path) {
-    if (drupal_match_path($path, $form_state['values']['source_pattern'])) {
+    if (backdrop_match_path($path, $form_state['values']['source_pattern'])) {
       $found = TRUE;
     }
   }
@@ -231,11 +231,11 @@ function match_redirect_add_form_validate($form, &$form_state) {
   $redirects = match_redirect_load_multiple(array());
   foreach ($redirects as $redirect) {
     // Do not allow patterns to trigger existing targets.
-    if (drupal_match_path($redirect->target, $form_state['values']['source_pattern'])) {
+    if (backdrop_match_path($redirect->target, $form_state['values']['source_pattern'])) {
       form_set_error('source_pattern', t('Pattern will trigger an aready created target.'));
     }
     // Do not allow targets to fall within existing patterns.
-    if (drupal_match_path($form_state['values']['target'], $redirect->source_pattern)) {
+    if (backdrop_match_path($form_state['values']['target'], $redirect->source_pattern)) {
       form_set_error('target', t('Target falls within redirect patterns already created.'));
     }
   }
@@ -248,8 +248,8 @@ function match_redirect_add_form_submit($form, &$form_state) {
   form_state_values_clean($form_state);
   $values = (object) $form_state['values'];
   match_redirect_save($values);
-  drupal_set_message(t('Redirect saved.'));
-  $form_state['redirect'] = 'admin/config/search/match_redirect';
+  backdrop_set_message(t('Redirect saved.'));
+  $form_state['redirect'] = 'admin/config/urls/match_redirect';
 }
 
 /**
@@ -267,7 +267,7 @@ function match_redirect_delete_form($form, &$form_state, $redirect) {
     $form,
     t('Are you sure you want to delete the redirect to %target?',
     array('%target' => $redirect->target)),
-    'admin/config/search/match_redirect'
+    'admin/config/urls/match_redirect'
   );
 }
 
@@ -276,6 +276,6 @@ function match_redirect_delete_form($form, &$form_state, $redirect) {
  */
 function match_redirect_delete_form_submit($form, &$form_state) {
   match_redirect_delete($form_state['values']['rid']);
-  drupal_set_message(t('Redirect has been deleted.'));
-  $form_state['redirect'] = 'admin/config/search/match_redirect';
+  backdrop_set_message(t('Redirect has been deleted.'));
+  $form_state['redirect'] = 'admin/config/urls/match_redirect';
 }
