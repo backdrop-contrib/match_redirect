@@ -26,7 +26,7 @@ function match_redirect_entity_info() {
  * Implements hook_menu().
  */
 function match_redirect_menu() {
-  $items['admin/config/search/match_redirect'] = array(
+  $items['admin/config/urls/match_redirect'] = array(
     'title' => 'Match redirects',
     'description' => 'Matching pattern redirects to target.',
     'page callback' => 'drupal_get_form',
@@ -34,7 +34,7 @@ function match_redirect_menu() {
     'access arguments' => array('administer matchredirect'),
     'file' => 'match_redirect.admin.inc',
   );
-  $items['admin/config/search/match_redirect/add'] = array(
+  $items['admin/config/urls/match_redirect/add'] = array(
     'title' => 'Add match redirect',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('match_redirect_add_form'),
@@ -42,14 +42,14 @@ function match_redirect_menu() {
     'file' => 'match_redirect.admin.inc',
     'type' => MENU_LOCAL_ACTION,
   );
-  $items['admin/config/search/match_redirect/edit/%match_redirect'] = array(
+  $items['admin/config/urls/match_redirect/edit/%match_redirect'] = array(
     'title' => 'Edit match redirect',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('match_redirect_add_form', 5),
     'access arguments' => array('administer matchredirect'),
     'file' => 'match_redirect.admin.inc',
   );
-  $items['admin/config/search/match_redirect/delete/%match_redirect'] = array(
+  $items['admin/config/urls/match_redirect/delete/%match_redirect'] = array(
     'title' => 'Delete match redirect',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('match_redirect_delete_form', 5),
@@ -85,15 +85,15 @@ function match_redirect_init() {
     $override = $row->override;
     $query = $row->query;
     $code = $row->status_code;
-    if (drupal_match_path($current_alias, $patterns)) {
+    if (backdrop_match_path($current_alias, $patterns)) {
       // Check if the current page exists unless overridden.
       if ($override || !match_redirect_url_exists()) {
         $options = array();
         if ($query) {
-          $options['query'] = drupal_get_query_parameters();
+          $options['query'] = backdrop_get_query_parameters();
         }
         // Do the redirect.
-        drupal_goto($redirect, $options, $code);
+        backdrop_goto($redirect, $options, $code);
         break;
       }
     }
@@ -127,7 +127,7 @@ function match_redirect_theme() {
  *
  * @param object $redirect
  *   The redirect object to be saved.
- * 
+ *
  * @throws Exception
  */
 function match_redirect_save($redirect) {
@@ -144,12 +144,12 @@ function match_redirect_save($redirect) {
 
     // Save to the database and fire relevent hooks.
     if (!empty($redirect->rid)) {
-      drupal_write_record('match_redirect', $redirect, array('rid'));
+      backdrop_write_record('match_redirect', $redirect, array('rid'));
       // Invoke hook_entity_update() on other modules.
       module_invoke_all('entity_update', $redirect, 'match_redirect');
     }
     else {
-      drupal_write_record('match_redirect', $redirect);
+      backdrop_write_record('match_redirect', $redirect);
       // Invoke hook_entity_insert() on other modules.
       module_invoke_all('entity_insert', $redirect, 'match_redirect');
     }
@@ -168,7 +168,7 @@ function match_redirect_save($redirect) {
  *
  * @param int $rid
  *   The id of the redirect to be deleted.
- * 
+ *
  * @throws Exception
  */
 function match_redirect_delete($rid) {
@@ -196,7 +196,7 @@ function match_redirect_delete($rid) {
  *   The id of the redirect to be loaded.
  * @param bool $reset
  *   Whether to reset the internal cache for the requested entity type.
- * 
+ *
  * @return mixed
  *   Returns loaded redirect or FALSE if not found.
  */
@@ -211,13 +211,13 @@ function match_redirect_load($rid, $reset = FALSE) {
  * @param array $rids
  *   Array of redirect ids to be loaded.
  * @param array $conditions
- *   An associative array of conditions on the base table, where the keys are 
- *   the database fields and the values are the values those fields must have. 
- *   Instead, it is preferable to use EntityFieldQuery to retrieve a list of 
+ *   An associative array of conditions on the base table, where the keys are
+ *   the database fields and the values are the values those fields must have.
+ *   Instead, it is preferable to use EntityFieldQuery to retrieve a list of
  *   entity IDs loadable by this function.
  * @param bool $reset
  *   Whether to reset the internal cache for the requested entity type.
- * 
+ *
  * @return array
  *   Returns loaded redirects array or empty array if none found.
  */
