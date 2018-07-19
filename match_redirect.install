@@ -60,15 +60,8 @@ function match_redirect_schema() {
 
 
 /**
- * Add the {match_redirect}.query field.
+ * Implements hook_update_last_removed().
  */
-function match_redirect_update_1() {
-  $field = array(
-    'type' => 'int',
-    'size' => 'tiny',
-    'not null' => TRUE,
-    'default' => 0,
-    'description' => 'allow query string to be passed with the redirect.',
-  );
-  db_add_field('match_redirect', 'query', $field);
+function match_redirect_update_last_removed() {
+  return 1;
 }
