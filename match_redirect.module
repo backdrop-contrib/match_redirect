@@ -18,7 +18,6 @@ function match_redirect_entity_info() {
       'id' => 'rid',
     ),
     'fieldable' => FALSE,
-    'uuid' => FALSE,
   );
 
   return $info;
