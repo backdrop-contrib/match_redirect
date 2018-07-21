@@ -246,8 +246,8 @@ function match_redirect_add_form_validate($form, &$form_state) {
  */
 function match_redirect_add_form_submit($form, &$form_state) {
   form_state_values_clean($form_state);
-  $values = (object) $form_state['values'];
-  match_redirect_save($values);
+  entity_create('match_redirect', $form_state['values']);
+//  match_redirect_save($values);
   backdrop_set_message(t('Redirect saved.'));
   $form_state['redirect'] = 'admin/config/urls/match_redirect';
 }
@@ -275,7 +275,7 @@ function match_redirect_delete_form($form, &$form_state, $redirect) {
  * Submit callback for redirect delete confirm form.
  */
 function match_redirect_delete_form_submit($form, &$form_state) {
-  match_redirect_delete($form_state['values']['rid']);
+  entity_delete_multiple('match_redirect', array($form_state['values']['rid']));
   backdrop_set_message(t('Redirect has been deleted.'));
   $form_state['redirect'] = 'admin/config/urls/match_redirect';
 }

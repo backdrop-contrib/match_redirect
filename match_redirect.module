@@ -12,6 +12,8 @@ function match_redirect_entity_info() {
   $info['match_redirect'] = array(
     'label' => t('Match Redirect'),
     'base table' => 'match_redirect',
+    'entity class' => 'MatchRedirectEntity',
+    'controller class' => 'MatchRedirectEntityController',
     'entity keys' => array(
       'id' => 'rid',
     ),
@@ -20,6 +22,17 @@ function match_redirect_entity_info() {
   );
 
   return $info;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function match_redirect_autoload_info() {
+  return array(
+    'MatchRedirectEntity' => 'includes/match_redirect.entity.inc',
+    'MatchRedirectEntityController' => 'includes/match_redirect.entity.inc',
+    'MatchRedirectEntityControllerInterface' => 'includes/match_redirect.entity.inc',
+  );
 }
 
 /**
@@ -130,38 +143,39 @@ function match_redirect_theme() {
  *
  * @throws Exception
  */
-function match_redirect_save($redirect) {
-  $transaction = db_transaction();
-
-  try {
-    // Load the stored entity, if any.
-    if (!empty($redirect->rid) && !isset($redirect->original)) {
-      $redirect->original = entity_load_unchanged('match_redirect', $redirect->rid);
-    }
-
-    // Invoke hook_entity_presave() on other modules.
-    module_invoke_all('entity_presave', $redirect, 'match_redirect');
-
-    // Save to the database and fire relevent hooks.
-    if (!empty($redirect->rid)) {
-      backdrop_write_record('match_redirect', $redirect, array('rid'));
-      // Invoke hook_entity_update() on other modules.
-      module_invoke_all('entity_update', $redirect, 'match_redirect');
-    }
-    else {
-      backdrop_write_record('match_redirect', $redirect);
-      // Invoke hook_entity_insert() on other modules.
-      module_invoke_all('entity_insert', $redirect, 'match_redirect');
-    }
-
-    unset($redirect->original);
-  }
-  catch (Exception $e) {
-    $transaction->rollback('match_redirect');
-    watchdog_exception('match_redirect', $e);
-    throw $e;
-  }
-}
+//function match_redirect_save($redirect) {
+//  $transaction = db_transaction();
+//
+//  try {
+//    // Load the stored entity, if any.
+//    if (!empty($redirect->rid) && !isset($redirect->original)) {
+//      $redirect->original = entity_load_unchanged('match_redirect', $redirect->rid);
+//    }
+//
+//    // Invoke hook_entity_presave() on other modules.
+//    module_invoke_all('entity_presave', $redirect, 'match_redirect');
+//
+//    // Save to the database and fire relevent hooks.
+//    if (!empty($redirect->rid)) {
+//
+//      backdrop_write_record('match_redirect', $redirect, array('rid'));
+//      // Invoke hook_entity_update() on other modules.
+//      module_invoke_all('entity_update', $redirect, 'match_redirect');
+//    }
+//    else {
+//      backdrop_write_record('match_redirect', $redirect);
+//      // Invoke hook_entity_insert() on other modules.
+//      module_invoke_all('entity_insert', $redirect, 'match_redirect');
+//    }
+//
+//    unset($redirect->original);
+//  }
+//  catch (Exception $e) {
+//    $transaction->rollback('match_redirect');
+//    watchdog_exception('match_redirect', $e);
+//    throw $e;
+//  }
+//}
 
 /**
  * Deletes a redirect.
@@ -171,23 +185,23 @@ function match_redirect_save($redirect) {
  *
  * @throws Exception
  */
-function match_redirect_delete($rid) {
-  $transaction = db_transaction();
-  $redirect = match_redirect_load($rid);
-  try {
-    // Invoke hook_entity_delete() on other modules.
-    module_invoke_all('entity_delete', $redirect, 'match_redirect');
-
-    db_delete('match_redirect')
-      ->condition('rid', $rid, '=')
-      ->execute();
-  }
-  catch (Exception $e) {
-    $transaction->rollback('match_redirect');
-    watchdog_exception('match_redirect', $e);
-    throw $e;
-  }
-}
+//function match_redirect_delete($rid) {
+//  $transaction = db_transaction();
+//  $redirect = match_redirect_load($rid);
+//  try {
+//    // Invoke hook_entity_delete() on other modules.
+//    module_invoke_all('entity_delete', $redirect, 'match_redirect');
+//
+//    db_delete('match_redirect')
+//      ->condition('rid', $rid, '=')
+//      ->execute();
+//  }
+//  catch (Exception $e) {
+//    $transaction->rollback('match_redirect');
+//    watchdog_exception('match_redirect', $e);
+//    throw $e;
+//  }
+//}
 
 /**
  * Loads a redirect and returns it.
