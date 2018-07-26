@@ -35,6 +35,20 @@ function match_redirect_autoload_info() {
 }
 
 /**
+ * We save the entity by calling the controller.
+ */
+function match_redirect_save(&$entity) {
+  return entity_get_controller('match_redirect')->save($entity);
+}
+
+/**
+ * Use the controller to delete the entity.
+ */
+function match_redirect_delete($entity) {
+  entity_get_controller('match_redirect')->delete($entity);
+}
+
+/**
  * Implements hook_menu().
  */
 function match_redirect_menu() {

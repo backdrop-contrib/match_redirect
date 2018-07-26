@@ -246,8 +246,10 @@ function match_redirect_add_form_validate($form, &$form_state) {
  */
 function match_redirect_add_form_submit($form, &$form_state) {
   form_state_values_clean($form_state);
-  entity_create('match_redirect', $form_state['values']);
-//  match_redirect_save($values);
+  //dsm($form_state['values']);
+  match_redirect_save($form_state['values']);
+  //entity_create('match_redirect', $form_state['values']);
+  //match_redirect_save($values);
   backdrop_set_message(t('Redirect saved.'));
   $form_state['redirect'] = 'admin/config/urls/match_redirect';
 }
