@@ -63,11 +63,13 @@ function match_redirect_list_form($form, &$form_state) {
 function match_redirect_list_form_submit($form, &$form_state) {
   if (isset($form_state['values']['redirects'])) {
     foreach ($form_state['values']['redirects'] as $rid => $weight) {
+      // @TODO: Reording isn't working yet
+
       // Save new weights.
-      $redirect = new stdClass();
-      $redirect->rid = $rid;
-      $redirect->weight = $weight['weight'];
-      match_redirect_save($redirect);
+      //$redirect = entity_get_controller('match_redirect')->create();
+      //$redirect->rid = $rid;
+      //$redirect->weight = $weight['weight'];
+      //match_redirect_save($redirect);
     }
   }
 }
@@ -141,8 +143,15 @@ function theme_match_redirect_list_form($variables) {
 function match_redirect_add_form($form, &$form_state, $existing = NULL) {
   // No existing redirect provided create empty class.
   if (!isset($existing)) {
-    $existing = new stdClass();
+    //@TODO Figure out if we should be passing null values or change the create?
+    $values = NULL;
+    $existing = entity_get_controller('match_redirect')->create($values);
   }
+
+  $form['match_redirect'] = array(
+    '#type' => 'value',
+    '#value' => $existing,
+  );
 
   $form['rid'] = array(
     '#type' => 'value',
@@ -245,9 +254,18 @@ function match_redirect_add_form_validate($form, &$form_state) {
  * Submit callback for redirect add/edit form.
  */
 function match_redirect_add_form_submit($form, &$form_state) {
-  form_state_values_clean($form_state);
-  entity_create('match_redirect', $form_state['values']);
-//  match_redirect_save($values);
+  $entity = $form_state['values']['match_redirect'];
+  // @TODO figure out why we can't convert the whole form array to object?
+  $entity->rid = $form_state['values']['rid'];
+  $entity->source_pattern = $form_state['values']['source_pattern'];
+  $entity->target = $form_state['values']['target'];
+  $entity->status_code = $form_state['values']['status_code'];
+  $entity->override = $form_state['values']['override'];
+  $entity->query = $form_state['values']['query'];
+  $entity->weight = $form_state['values']['weight'];
+  match_redirect_save($entity);
+  //entity_create('match_redirect', $form_state['values']);
+
   backdrop_set_message(t('Redirect saved.'));
   $form_state['redirect'] = 'admin/config/urls/match_redirect';
 }
