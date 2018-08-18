@@ -1,4 +1,4 @@
-[![Build Status](https://status-ucb-webdev.pantheonsite.io/drupal-status-check/match_redirect/7.x-1.0.svg)](https://github.com/backdrop/backdrop-issues/issues/new?title=Review%20Changes%20in%207.x-1.0%20Release&body=)
+[![Build Status](https://status-ucb-webdev.pantheonsite.io/drupal-status-check/match_redirect/7.x-1.0.svg)](https://github.com/backdrop-contrib/match_redirect/issues/new?title=Review%20Changes%20in%207.x-1.0%20Release&body=)
 
 Match Redirect
 --------------
