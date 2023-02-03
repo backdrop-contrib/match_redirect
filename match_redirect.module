@@ -103,7 +103,7 @@ function match_redirect_init() {
   // Get all redirects.
   $results = match_redirect_load_multiple(array());
   // Alias of page user is on.
-  $current_alias = drupal_get_path_alias();
+  $current_alias = backdrop_get_path_alias();
   // Check each redirect for a match and stop if found.
   foreach ($results as $row) {
     $patterns = $row->source_pattern;
